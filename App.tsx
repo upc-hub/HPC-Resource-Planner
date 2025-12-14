@@ -3,6 +3,7 @@ import { CENTERS as INITIAL_CENTERS, HPCI_TOTAL_LIMIT } from './constants';
 import { ResourceRequest, CostBreakdown, CenterSpec } from './types';
 import { CenterCard } from './components/CenterCard';
 import { CostChart } from './components/CostChart';
+import { ResourceComparison } from './components/ResourceComparison';
 import { SettingsModal } from './components/SettingsModal';
 import { LayoutDashboard, Wallet, Building2, AlertTriangle, CheckCircle2, Settings } from 'lucide-react';
 
@@ -183,6 +184,11 @@ const App: React.FC = () => {
                     </div>
                 </div>
             </div>
+        </section>
+
+        {/* Comparison Section */}
+        <section>
+          <ResourceComparison centers={centers} />
         </section>
 
         {/* Main Grid: Centers */}
