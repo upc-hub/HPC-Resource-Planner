@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { CENTERS as INITIAL_CENTERS, HPCI_TOTAL_LIMIT } from './constants';
+import { CENTERS as INITIAL_CENTERS, HPCI_TOTAL_LIMIT, MDX_TOTAL_LIMIT } from './constants';
 import { ResourceRequest, CostBreakdown, CenterSpec } from './types';
 import { CenterCard } from './components/CenterCard';
 import { CostChart } from './components/CostChart';
@@ -24,8 +24,8 @@ const App: React.FC = () => {
   // Modal States
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  // Calculate costs in real-time
-  const costs = useMemo<CostBreakdown[]>(() => {
+  // First pass: Calculate individual totals per center
+  const rawCosts = useMemo(() => {
     return requests.map(req => {
       const center = centers.find(c => c.id === req.centerId)!;
       
@@ -48,23 +48,42 @@ const App: React.FC = () => {
       
       return {
         centerId: center.id,
+        type: center.type,
         cpuCost,
         gpuCost,
         storageCost,
-        total,
-        isOverLimit: center.type === 'HPCI' && total > 3000000
+        total
       };
     });
   }, [requests, centers]);
 
-  // Aggregate HPCI Total
-  const hpciTotal = useMemo(() => {
-    return costs
-      .filter(c => centers.find(center => center.id === c.centerId)?.type === 'HPCI')
-      .reduce((sum, c) => sum + c.total, 0);
-  }, [costs, centers]);
+  // Aggregate Totals
+  const hpciTotal = useMemo(() => 
+    rawCosts.filter(c => c.type === 'HPCI').reduce((sum, c) => sum + c.total, 0), 
+  [rawCosts]);
+
+  const mdxTotal = useMemo(() => 
+    rawCosts.filter(c => c.type === 'mdx').reduce((sum, c) => sum + c.total, 0), 
+  [rawCosts]);
 
   const hpciOverTotalLimit = hpciTotal > HPCI_TOTAL_LIMIT;
+  const mdxOverTotalLimit = mdxTotal > MDX_TOTAL_LIMIT;
+
+  // Final Costs with OverLimit flags based on context
+  const costs: CostBreakdown[] = useMemo(() => {
+    return rawCosts.map(c => {
+      let isOverLimit = false;
+      if (c.type === 'HPCI') {
+        isOverLimit = c.total > 3000000; // HPCI Single Center Limit
+      } else if (c.type === 'mdx') {
+        isOverLimit = mdxOverTotalLimit; // mdx Shared Limit
+      }
+      return {
+        ...c,
+        isOverLimit
+      };
+    });
+  }, [rawCosts, mdxOverTotalLimit]);
 
   // Handle Request Updates
   const handleRequestUpdate = (centerId: string, type: 'cpu'|'gpu'|'storage', optionId: string, value: number) => {
@@ -153,6 +172,7 @@ const App: React.FC = () => {
                 </h3>
                 
                 <div className="space-y-6">
+                    {/* HPCI Summary */}
                     <div>
                         <div className="flex justify-between text-sm mb-1">
                             <span className="font-medium text-slate-600">HPCI Total Usage</span>
@@ -166,20 +186,32 @@ const App: React.FC = () => {
                                 style={{ width: `${Math.min((hpciTotal / HPCI_TOTAL_LIMIT) * 100, 100)}%` }}
                             ></div>
                         </div>
-                        <p className="text-xs text-slate-400 mt-2">
-                            Total allowed across all 8 HPCI centers is 3.6 Million JPY.
-                        </p>
+                        <div className="flex justify-between items-center mt-1.5">
+                            <p className="text-xs text-slate-400">Limit: ¥3,600,000</p>
+                            <p className={`text-xs font-bold ${hpciOverTotalLimit ? 'text-red-600' : 'text-slate-600'}`}>¥{hpciTotal.toLocaleString()}</p>
+                        </div>
                     </div>
 
                     <div className="pt-4 border-t border-slate-100">
+                        {/* mdx Summary */}
                         <div className="flex justify-between text-sm mb-1">
-                            <span className="font-medium text-slate-600">mdx Total Usage</span>
-                            <span className="text-slate-900 font-bold">
-                                ¥{costs.filter(c => centers.find(cen => cen.id === c.centerId)?.type === 'mdx').reduce((a, b) => a + b.total, 0).toLocaleString()}
+                            <span className="font-medium text-slate-600">mdx Total Usage (I & II)</span>
+                            <span className={mdxOverTotalLimit ? 'text-red-600 font-bold' : 'text-slate-900 font-bold'}>
+                                {((mdxTotal / MDX_TOTAL_LIMIT) * 100).toFixed(1)}%
                             </span>
                         </div>
-                        <p className="text-xs text-slate-400 mt-2">
-                            mdx resources operate on a separate billing structure but are tracked here for completeness.
+                        <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+                             <div 
+                                className={`h-full rounded-full transition-all duration-500 ${mdxOverTotalLimit ? 'bg-red-500' : 'bg-purple-600'}`} 
+                                style={{ width: `${Math.min((mdxTotal / MDX_TOTAL_LIMIT) * 100, 100)}%` }}
+                            ></div>
+                        </div>
+                        <div className="flex justify-between items-center mt-1.5">
+                            <p className="text-xs text-slate-400">Limit: ¥1,000,000</p>
+                            <p className={`text-xs font-bold ${mdxOverTotalLimit ? 'text-red-600' : 'text-slate-600'}`}>¥{mdxTotal.toLocaleString()}</p>
+                        </div>
+                         <p className="text-[10px] text-slate-400 mt-2">
+                            mdx resources (Tokyo & Osaka) share a combined budget of 1 Million JPY.
                         </p>
                     </div>
                 </div>
@@ -207,13 +239,15 @@ const App: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {centers.map(center => {
                     const req = requests.find(r => r.centerId === center.id)!;
-                    const cost = costs.find(c => c.centerId === center.id)!.total;
+                    const costData = costs.find(c => c.centerId === center.id)!;
+                    
                     return (
                         <CenterCard
                             key={center.id}
                             center={center}
                             request={req}
-                            cost={cost}
+                            cost={costData.total}
+                            // Pass down check for mdx overall limit or HPCI single limit
                             onUpdate={(type, optId, val) => handleRequestUpdate(center.id, type, optId, val)}
                         />
                     );

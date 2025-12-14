@@ -140,12 +140,12 @@ export const CENTERS: CenterSpec[] = [
     id: 'mdx-tokyo',
     name: 'mdx-I (Tokyo)',
     type: 'mdx',
-    description: 'Virtualization Platform Tokyo',
+    description: 'Kashiwa II (Xeon Gold/V100)',
     cpuOptions: [
-        { id: 'mdx-t-cpu-1', name: 'Standard', limit: 100000, price: 40 }
+        { id: 'mdx-t-cpu-1', name: 'CPU Pack (16 vCPU, 32GB)', limit: 50000, price: 40 }
     ],
     gpuOptions: [
-        { id: 'mdx-t-gpu-1', name: 'vGPU', limit: 20000, price: 150 }
+        { id: 'mdx-t-gpu-1', name: 'GPU Pack (1x V100)', limit: 10000, price: 200 }
     ],
     storageOptions: [
         { id: 'mdx-t-str-1', name: 'Storage', limit: 500, price: 5000 }
@@ -155,12 +155,12 @@ export const CENTERS: CenterSpec[] = [
     id: 'mdx-osaka',
     name: 'mdx-II (Osaka)',
     type: 'mdx',
-    description: 'Virtualization Platform Osaka',
+    description: 'Grand Front Osaka (Xeon Platinum/H100)',
     cpuOptions: [
-        { id: 'mdx-o-cpu-1', name: 'Standard', limit: 100000, price: 40 }
+        { id: 'mdx-o-cpu-1', name: 'CPU Pack (High Perf.)', limit: 50000, price: 50 }
     ],
     gpuOptions: [
-        { id: 'mdx-o-gpu-1', name: 'vGPU', limit: 20000, price: 150 }
+        { id: 'mdx-o-gpu-1', name: 'GPU Pack (1x H100)', limit: 10000, price: 300 }
     ],
     storageOptions: [
         { id: 'mdx-o-str-1', name: 'Storage', limit: 500, price: 5000 }
@@ -170,3 +170,4 @@ export const CENTERS: CenterSpec[] = [
 
 export const HPCI_SINGLE_CENTER_LIMIT = 3000000; // 3M JPY
 export const HPCI_TOTAL_LIMIT = 3600000; // 3.6M JPY
+export const MDX_TOTAL_LIMIT = 1000000; // 1M JPY (Shared between mdx-I and mdx-II)

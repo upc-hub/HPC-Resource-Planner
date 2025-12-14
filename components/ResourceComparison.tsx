@@ -76,7 +76,7 @@ export const ResourceComparison: React.FC<ResourceComparisonProps> = ({ centers 
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
-        <div className="bg-white p-3 border border-slate-200 shadow-lg rounded-lg text-sm">
+        <div className="bg-white p-3 border border-slate-200 shadow-lg rounded-lg text-sm z-50">
           <p className="font-bold text-slate-800 mb-1">{data.institutionName}</p>
           <p className="text-slate-600 font-medium">{data.resourceName}</p>
           <div className="my-1 h-px bg-slate-100"></div>
@@ -90,6 +90,11 @@ export const ResourceComparison: React.FC<ResourceComparisonProps> = ({ centers 
       );
     }
     return null;
+  };
+
+  // Helper to calculate domain max to avoid too much whitespace
+  const calculateDomainMax = (dataMax: number) => {
+      return Math.ceil(dataMax * 1.05); // Add 5% padding
   };
 
   return (
@@ -131,28 +136,29 @@ export const ResourceComparison: React.FC<ResourceComparisonProps> = ({ centers 
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-[450px] lg:h-[350px]">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 h-[600px]">
         {/* Capacity Chart */}
         <div className="flex flex-col h-full">
           <h4 className="text-sm font-semibold text-slate-500 mb-4 text-center">Max Acceptable Quantity ({getUnitLabel()})</h4>
           <div className="flex-1 min-h-0">
             {data.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 60 }}>
+                <BarChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 80 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                   <XAxis 
                     dataKey="resourceName" 
                     angle={-45} 
                     textAnchor="end" 
                     height={80} 
-                    tick={{fontSize: 9}} 
+                    tick={{fontSize: 10, fill: '#64748b'}} 
                     interval={0} 
                   />
                   <YAxis 
                     tickFormatter={(val) => val >= 1000 ? `${(val/1000).toFixed(0)}k` : val} 
-                    tick={{fontSize: 11}} 
+                    tick={{fontSize: 11, fill: '#64748b'}} 
+                    domain={[0, calculateDomainMax]}
                   />
-                  <Tooltip content={<CustomTooltip />} />
+                  <Tooltip content={<CustomTooltip />} cursor={{fill: '#f1f5f9'}} />
                   <Bar dataKey="limit" name="limit" radius={[4, 4, 0, 0]}>
                     {data.map((entry) => (
                       <Cell key={entry.id} fill={entry.color} />
@@ -174,18 +180,22 @@ export const ResourceComparison: React.FC<ResourceComparisonProps> = ({ centers 
            <div className="flex-1 min-h-0">
              {data.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 60 }}>
+                <BarChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 80 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                   <XAxis 
                     dataKey="resourceName" 
                     angle={-45} 
                     textAnchor="end" 
                     height={80} 
-                    tick={{fontSize: 9}} 
+                    tick={{fontSize: 10, fill: '#64748b'}} 
                     interval={0} 
                   />
-                  <YAxis tick={{fontSize: 11}} tickFormatter={(val) => `¥${val}`} />
-                  <Tooltip content={<CustomTooltip />} />
+                  <YAxis 
+                    tick={{fontSize: 11, fill: '#64748b'}} 
+                    tickFormatter={(val) => `¥${val}`} 
+                    domain={[0, calculateDomainMax]}
+                  />
+                  <Tooltip content={<CustomTooltip />} cursor={{fill: '#f1f5f9'}} />
                   <Bar dataKey="price" name="price" radius={[4, 4, 0, 0]}>
                     {data.map((entry) => (
                       <Cell key={entry.id} fill={entry.color} />
