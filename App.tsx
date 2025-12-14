@@ -337,6 +337,11 @@ const App: React.FC = () => {
 
       </main>
 
+      {/* Footer */}
+      <footer className="max-w-7xl mx-auto px-4 py-6 text-center text-slate-400 text-xs border-t border-slate-200/50">
+        <p>&copy; {new Date().getFullYear()} HPC Resource Planner. All rights reserved.</p>
+      </footer>
+
       {/* Settings Modal */}
       <SettingsModal 
         isOpen={isSettingsOpen}
