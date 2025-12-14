@@ -16,8 +16,9 @@ const ResourceRow: React.FC<{
   onUpdate: (val: number) => void;
   unit: string;
   isCalcEnabled: boolean;
-}> = ({ option, value, onUpdate, unit, isCalcEnabled }) => {
-  const isOverLimit = value > option.limit;
+  isMdx: boolean;
+}> = ({ option, value, onUpdate, unit, isCalcEnabled, isMdx }) => {
+  const isOverLimit = !isMdx && value > option.limit; // Don't flag limits for mdx
   const [showCalc, setShowCalc] = useState(false);
   const [parallelNodes, setParallelNodes] = useState(1);
   const [hoursPerDay, setHoursPerDay] = useState(24);
@@ -54,11 +55,13 @@ const ResourceRow: React.FC<{
         )}
       </div>
       
-      <div className="flex justify-between mt-0.5 px-1">
-          <span className={`text-[10px] font-bold ${isOverLimit ? 'text-red-600' : 'text-slate-400'}`}>
-              Max: {option.limit.toLocaleString()}
-          </span>
-      </div>
+      {!isMdx && (
+        <div className="flex justify-between mt-0.5 px-1">
+            <span className={`text-[10px] font-bold ${isOverLimit ? 'text-red-600' : 'text-slate-400'}`}>
+                Max: {option.limit.toLocaleString()}
+            </span>
+        </div>
+      )}
 
       {/* Calculator Panel */}
       {showCalc && isCalcEnabled && (
@@ -107,7 +110,8 @@ const ResourceInputGroup: React.FC<{
   selections: Record<string, number>;
   onUpdate: (id: string, val: number) => void;
   unit: string;
-}> = ({ label, icon, options, selections, onUpdate, unit }) => {
+  isMdx: boolean;
+}> = ({ label, icon, options, selections, onUpdate, unit, isMdx }) => {
   if (options.length === 0) {
     return (
       <div className="opacity-50 pointer-events-none grayscale mb-4">
@@ -124,8 +128,8 @@ const ResourceInputGroup: React.FC<{
     );
   }
 
-  // Only enable calculator for time-based resources (node-hours, gpu-hours), assuming 'TB' is storage.
-  const isCalcEnabled = unit === 'hr';
+  // Only enable calculator for time-based resources (node-hours, gpu-hours) and NOT mdx
+  const isCalcEnabled = !isMdx && unit === 'hr';
 
   return (
     <div className="space-y-2 mb-4">
@@ -144,6 +148,7 @@ const ResourceInputGroup: React.FC<{
           onUpdate={(val) => onUpdate(opt.id, val)}
           unit={unit}
           isCalcEnabled={isCalcEnabled}
+          isMdx={isMdx}
         />
       ))}
     </div>
@@ -152,11 +157,12 @@ const ResourceInputGroup: React.FC<{
 
 export const CenterCard: React.FC<CenterCardProps> = ({ center, request, cost, onUpdate }) => {
   const isCostOverLimit = center.type === 'HPCI' && cost > HPCI_SINGLE_CENTER_LIMIT;
+  const isMdx = center.type === 'mdx';
 
-  // Check for any limit violations
-  const hasCpuError = center.cpuOptions.some(opt => (request.cpuSelections[opt.id] || 0) > opt.limit);
-  const hasGpuError = center.gpuOptions.some(opt => (request.gpuSelections[opt.id] || 0) > opt.limit);
-  const hasStorageError = center.storageOptions.some(opt => (request.storageSelections[opt.id] || 0) > opt.limit);
+  // Check for any limit violations (Ignore limits for mdx as they are unknown/flexible)
+  const hasCpuError = !isMdx && center.cpuOptions.some(opt => (request.cpuSelections[opt.id] || 0) > opt.limit);
+  const hasGpuError = !isMdx && center.gpuOptions.some(opt => (request.gpuSelections[opt.id] || 0) > opt.limit);
+  const hasStorageError = !isMdx && center.storageOptions.some(opt => (request.storageSelections[opt.id] || 0) > opt.limit);
   const hasLimitError = hasCpuError || hasGpuError || hasStorageError;
 
   return (
@@ -189,20 +195,22 @@ export const CenterCard: React.FC<CenterCardProps> = ({ center, request, cost, o
 
         <div className="flex-1">
           <ResourceInputGroup 
-            label="CPU (Node-Hours)" 
+            label={isMdx ? "CPU (Packs)" : "CPU (Node-Hours)"}
             icon={<Cpu size={14} />} 
             options={center.cpuOptions} 
             selections={request.cpuSelections}
             onUpdate={(id, val) => onUpdate('cpu', id, val)}
-            unit="hr"
+            unit={isMdx ? "Pack" : "hr"}
+            isMdx={isMdx}
           />
           <ResourceInputGroup 
-            label="GPU (GPU-Hours)" 
+            label={isMdx ? "GPU (Packs)" : "GPU (GPU-Hours)"}
             icon={<Server size={14} />} 
             options={center.gpuOptions} 
             selections={request.gpuSelections}
             onUpdate={(id, val) => onUpdate('gpu', id, val)}
-            unit="hr"
+            unit={isMdx ? "Pack" : "hr"}
+            isMdx={isMdx}
           />
           <ResourceInputGroup 
             label="Storage (TB)" 
@@ -211,6 +219,7 @@ export const CenterCard: React.FC<CenterCardProps> = ({ center, request, cost, o
             selections={request.storageSelections}
             onUpdate={(id, val) => onUpdate('storage', id, val)}
             unit="TB"
+            isMdx={isMdx}
           />
         </div>
       </div>

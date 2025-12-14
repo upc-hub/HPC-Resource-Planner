@@ -136,34 +136,36 @@ export const CENTERS: CenterSpec[] = [
   },
 
   // --- mdx Centers ---
+  // Note: mdx limits are flexible/unknown, set high to allow input. Prices are placeholders/estimates for the 1M budget bucket.
   {
     id: 'mdx-tokyo',
     name: 'mdx-I (Tokyo)',
     type: 'mdx',
     description: 'Kashiwa II (Xeon Gold/V100)',
     cpuOptions: [
-        { id: 'mdx-t-cpu-1', name: 'CPU Pack (16 vCPU, 32GB)', limit: 50000, price: 40 }
+        { id: 'mdx-t-cpu-1', name: 'CPU Pack (1 Node ≈ 80 Packs)', limit: 999999, price: 40 }
     ],
     gpuOptions: [
-        { id: 'mdx-t-gpu-1', name: 'GPU Pack (1x V100)', limit: 10000, price: 200 }
+        { id: 'mdx-t-gpu-1', name: 'GPU Pack (V100)', limit: 999999, price: 200 }
     ],
     storageOptions: [
-        { id: 'mdx-t-str-1', name: 'Storage', limit: 500, price: 5000 }
+        { id: 'mdx-t-str-1', name: 'Shared Storage', limit: 999999, price: 5000 }
     ]
   },
   {
     id: 'mdx-osaka',
     name: 'mdx-II (Osaka)',
     type: 'mdx',
-    description: 'Grand Front Osaka (Xeon Platinum/H100)',
+    description: 'Grand Front Osaka (Xeon Platinum/H200)',
     cpuOptions: [
-        { id: 'mdx-o-cpu-1', name: 'CPU Pack (High Perf.)', limit: 50000, price: 50 }
+        { id: 'mdx-o-cpu-1', name: 'CPU Pack (1 Node ≈ 100 Packs)', limit: 999999, price: 50 }
     ],
     gpuOptions: [
-        { id: 'mdx-o-gpu-1', name: 'GPU Pack (1x H100)', limit: 10000, price: 300 }
+        { id: 'mdx-o-gpu-1', name: 'GPU Pack (H200)', limit: 999999, price: 300 }
     ],
     storageOptions: [
-        { id: 'mdx-o-str-1', name: 'Storage', limit: 500, price: 5000 }
+        { id: 'mdx-o-str-1', name: 'Large Capacity Storage (Usable)', limit: 999999, price: 2500 },
+        { id: 'mdx-o-str-2', name: 'High Performance Storage (Usable)', limit: 999999, price: 5000 }
     ]
   },
 ];
