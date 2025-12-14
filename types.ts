@@ -1,3 +1,4 @@
+
 export type InfrastructureType = 'HPCI' | 'mdx';
 
 export interface ResourceOption {
@@ -7,11 +8,29 @@ export interface ResourceOption {
   price: number; // Unit price
 }
 
+export interface MdxSystemSpec {
+  totalCpuNodes: number;
+  cpuNodeSpec: string;
+  cpuPacksPerNode: number;
+  cpuCoresPerNode: number; // Total cores per node (physical)
+  cpuMemoryPerNode: number; // GB per node
+  
+  totalGpuNodes: number;
+  gpuNodeSpec: string;
+  gpuPacksPerNode: number;
+  gpuCoresPerNode: number; // Total cores per node
+  gpuMemoryPerNode: number; // GB per node
+  gpuModelName: string; // e.g., "A100", "H200"
+
+  storageInfo: string;
+}
+
 export interface CenterSpec {
   id: string;
   name: string;
   type: InfrastructureType;
   description: string;
+  mdxSpecs?: MdxSystemSpec;
   
   // Arrays of available resources
   cpuOptions: ResourceOption[];
@@ -21,6 +40,7 @@ export interface CenterSpec {
 
 export interface ResourceRequest {
   centerId: string;
+  isSelected?: boolean; // For mdx centers to indicate active usage (flat fee)
   // Maps option.id to quantity
   cpuSelections: Record<string, number>;
   gpuSelections: Record<string, number>;

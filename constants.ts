@@ -136,37 +136,65 @@ export const CENTERS: CenterSpec[] = [
   },
 
   // --- mdx Centers ---
-  // Note: mdx limits are flexible/unknown, set high to allow input. Prices are placeholders/estimates for the 1M budget bucket.
   {
     id: 'mdx-tokyo',
     name: 'mdx-I (Tokyo)',
     type: 'mdx',
-    description: 'Kashiwa II (Xeon Gold/V100)',
+    description: 'Kashiwa II',
+    mdxSpecs: {
+      totalCpuNodes: 368,
+      cpuNodeSpec: 'Xeon Platinum 8368 x2',
+      cpuPacksPerNode: 152, // 1 Pack = 1 vCPU
+      cpuCoresPerNode: 76, // 38 cores x 2
+      cpuMemoryPerNode: 256, // 256 GB
+
+      totalGpuNodes: 40,
+      gpuNodeSpec: 'Xeon Platinum 8368 x2 + Tesla A100 x8',
+      gpuPacksPerNode: 8, // 1 Pack = 1 GPU
+      gpuCoresPerNode: 76,
+      gpuMemoryPerNode: 512, // 512 GB
+      gpuModelName: 'A100',
+      
+      storageInfo: 'Shared Storage: 12.3 PB'
+    },
+    // Prices removed (set to 0) as requested
     cpuOptions: [
-        { id: 'mdx-t-cpu-1', name: 'CPU Pack (1 Node ≈ 80 Packs)', limit: 999999, price: 40 }
+        { id: 'mdx-t-cpu-1', name: 'CPU Pack (vCPU)', limit: 55936, price: 0 } // 368 * 152
     ],
     gpuOptions: [
-        { id: 'mdx-t-gpu-1', name: 'GPU Pack (V100)', limit: 999999, price: 200 }
+        { id: 'mdx-t-gpu-1', name: 'GPU Pack (A100)', limit: 320, price: 0 } // 40 * 8
     ],
-    storageOptions: [
-        { id: 'mdx-t-str-1', name: 'Shared Storage', limit: 999999, price: 5000 }
-    ]
+    storageOptions: [] // Removed as requested
   },
   {
     id: 'mdx-osaka',
     name: 'mdx-II (Osaka)',
     type: 'mdx',
-    description: 'Grand Front Osaka (Xeon Platinum/H200)',
+    description: 'Grand Front Osaka',
+    mdxSpecs: {
+      totalCpuNodes: 60, // 54 Standard + 6 Interoperable
+      cpuNodeSpec: 'Xeon Platinum 8480+ x2',
+      cpuPacksPerNode: 224, // 1 Pack = 1 vCPU (112 cores x 2 threads = 224)
+      cpuCoresPerNode: 112, // 56 cores x 2
+      cpuMemoryPerNode: 512, // 512 GB
+
+      totalGpuNodes: 7,
+      gpuNodeSpec: 'Xeon Gold 6530 x2 + H200 SXM x4',
+      gpuPacksPerNode: 4, // 1 Pack = 1 GPU
+      gpuCoresPerNode: 64, // 32 cores x 2
+      gpuMemoryPerNode: 1024, // 1 TB
+      gpuModelName: 'H200',
+
+      storageInfo: 'Lustre: 1.1 PB / Object: 432 TB'
+    },
+    // Prices removed (set to 0) as requested
     cpuOptions: [
-        { id: 'mdx-o-cpu-1', name: 'CPU Pack (1 Node ≈ 100 Packs)', limit: 999999, price: 50 }
+        { id: 'mdx-o-cpu-1', name: 'CPU Pack (vCPU)', limit: 13440, price: 0 } // 60 * 224
     ],
     gpuOptions: [
-        { id: 'mdx-o-gpu-1', name: 'GPU Pack (H200)', limit: 999999, price: 300 }
+        { id: 'mdx-o-gpu-1', name: 'GPU Pack (H200)', limit: 28, price: 0 } // 7 * 4
     ],
-    storageOptions: [
-        { id: 'mdx-o-str-1', name: 'Large Capacity Storage (Usable)', limit: 999999, price: 2500 },
-        { id: 'mdx-o-str-2', name: 'High Performance Storage (Usable)', limit: 999999, price: 5000 }
-    ]
+    storageOptions: [] // Removed as requested
   },
 ];
 

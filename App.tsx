@@ -15,6 +15,7 @@ const App: React.FC = () => {
   const [requests, setRequests] = useState<ResourceRequest[]>(() => 
     INITIAL_CENTERS.map(c => ({
       centerId: c.id,
+      isSelected: false, // Default unselected (mostly for mdx)
       cpuSelections: {},
       gpuSelections: {},
       storageSelections: {}
@@ -62,12 +63,17 @@ const App: React.FC = () => {
     rawCosts.filter(c => c.type === 'HPCI').reduce((sum, c) => sum + c.total, 0), 
   [rawCosts]);
 
-  const mdxTotal = useMemo(() => 
-    rawCosts.filter(c => c.type === 'mdx').reduce((sum, c) => sum + c.total, 0), 
-  [rawCosts]);
+  // mdx Total Logic: If any mdx center is "Selected", cost becomes the full limit (1M flat fee assumption)
+  const mdxTotal = useMemo(() => {
+    const isAnyMdxSelected = requests.some(r => {
+      const c = centers.find(cent => cent.id === r.centerId);
+      return c?.type === 'mdx' && r.isSelected;
+    });
+    return isAnyMdxSelected ? MDX_TOTAL_LIMIT : 0;
+  }, [requests, centers]);
 
   const hpciOverTotalLimit = hpciTotal > HPCI_TOTAL_LIMIT;
-  const mdxOverTotalLimit = mdxTotal > MDX_TOTAL_LIMIT;
+  const mdxOverTotalLimit = mdxTotal > MDX_TOTAL_LIMIT; // Should ideally equal limit if selected
 
   // Final Costs with OverLimit flags based on context
   const costs: CostBreakdown[] = useMemo(() => {
@@ -76,7 +82,8 @@ const App: React.FC = () => {
       if (c.type === 'HPCI') {
         isOverLimit = c.total > 3000000; // HPCI Single Center Limit
       } else if (c.type === 'mdx') {
-        isOverLimit = mdxOverTotalLimit; // mdx Shared Limit
+        // For mdx individual cards, we don't show limit errors usually as it's a shared pool
+        isOverLimit = mdxOverTotalLimit; 
       }
       return {
         ...c,
@@ -99,6 +106,13 @@ const App: React.FC = () => {
         }
       };
     }));
+  };
+
+  // Handle mdx Selection Toggle
+  const handleToggleSelection = (centerId: string) => {
+    setRequests(prev => prev.map(req => 
+      req.centerId === centerId ? { ...req, isSelected: !req.isSelected } : req
+    ));
   };
 
   // Handle Center Config Updates (Limits) from Settings Modal
@@ -211,7 +225,7 @@ const App: React.FC = () => {
                             <p className={`text-xs font-bold ${mdxOverTotalLimit ? 'text-red-600' : 'text-slate-600'}`}>¥{mdxTotal.toLocaleString()}</p>
                         </div>
                          <p className="text-[10px] text-slate-400 mt-2">
-                            mdx resources (Tokyo & Osaka) share a combined budget of 1 Million JPY.
+                            mdx resources (Tokyo & Osaka) share a combined budget of 1 Million JPY. Check 'Select' on mdx cards to apply.
                         </p>
                     </div>
                 </div>
@@ -249,6 +263,7 @@ const App: React.FC = () => {
                             cost={costData.total}
                             // Pass down check for mdx overall limit or HPCI single limit
                             onUpdate={(type, optId, val) => handleRequestUpdate(center.id, type, optId, val)}
+                            onToggleSelection={center.type === 'mdx' ? handleToggleSelection : undefined}
                         />
                     );
                 })}
