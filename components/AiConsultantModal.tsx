@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { X, Sparkles, AlertCircle, Loader2 } from 'lucide-react';
 import { CenterSpec, AiEstimateResponse } from '../types';
 import { estimateResources } from '../services/geminiService';
@@ -15,6 +15,20 @@ export const AiConsultantModal: React.FC<AiConsultantModalProps> = ({ isOpen, on
   const [loading, setLoading] = useState(false);
   const [estimate, setEstimate] = useState<AiEstimateResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const hardwareContext = useMemo(() => {
+    if (center.mdxSpecs) {
+      const gpuPart = center.mdxSpecs.totalGpuNodes > 0 ? ` + ${center.mdxSpecs.gpuModelName}` : '';
+      return `${center.mdxSpecs.cpuNodeSpec}${gpuPart}`;
+    }
+    const cpuInfo = center.cpuOptions.length > 0 
+      ? center.cpuOptions.map(c => c.name).join(', ') 
+      : 'General CPU';
+    const gpuInfo = center.gpuOptions.length > 0 
+      ? center.gpuOptions.map(g => g.name).join(', ') 
+      : null;
+    return `${cpuInfo}${gpuInfo ? ` + ${gpuInfo}` : ''}`;
+  }, [center]);
 
   if (!isOpen) return null;
 
@@ -72,7 +86,7 @@ export const AiConsultantModal: React.FC<AiConsultantModalProps> = ({ isOpen, on
                   onChange={(e) => setDescription(e.target.value)}
                 />
                 <p className="text-xs text-slate-500 mt-2">
-                  Hardware Context: {center.cpuModel} {center.gpuModel !== 'N/A' && `+ ${center.gpuModel}`}
+                  Hardware Context: {hardwareContext}
                 </p>
               </div>
 
