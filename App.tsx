@@ -338,8 +338,8 @@ const App: React.FC = () => {
       </main>
 
       {/* Footer */}
-      <footer className="max-w-7xl mx-auto px-4 py-6 text-center text-slate-400 text-xs border-t border-slate-200/50">
-        <p>&copy; {new Date().getFullYear()} HPC Resource Planner. Created by <span className="font-bold text-purple-600">Hein Htet</span>. All rights reserved.</p>
+      <footer className="max-w-7xl mx-auto px-4 py-6 text-center text-purple-600 text-xs border-t border-slate-200/50">
+        <p>&copy; {new Date().getFullYear()} HPC Resource Planner. Created by <span className="font-bold">Hein Htet</span>. All rights reserved.</p>
       </footer>
 
       {/* Settings Modal */}
