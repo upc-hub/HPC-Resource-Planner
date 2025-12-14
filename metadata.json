@@ -1,0 +1,5 @@
+{
+  "name": "HPC Resource Planner",
+  "description": "A smart computing resource planning tool for HPCI and mdx infrastructures. It helps researchers estimate required node-hours using AI and ensures budget compliance (3M/3.6M JPY limits).",
+  "requestFramePermissions": []
+}
