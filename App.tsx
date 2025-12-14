@@ -5,7 +5,8 @@ import { CenterCard } from './components/CenterCard';
 import { CostChart } from './components/CostChart';
 import { ResourceComparison } from './components/ResourceComparison';
 import { SettingsModal } from './components/SettingsModal';
-import { LayoutDashboard, Wallet, Building2, AlertTriangle, CheckCircle2, Settings } from 'lucide-react';
+import { InfoModal } from './components/InfoModal';
+import { LayoutDashboard, Wallet, Building2, AlertTriangle, CheckCircle2, Settings, CircleHelp } from 'lucide-react';
 
 const App: React.FC = () => {
   // State for Center Definitions (Allows editing limits via Settings)
@@ -24,6 +25,7 @@ const App: React.FC = () => {
 
   // Modal States
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isInfoOpen, setIsInfoOpen] = useState(false);
 
   // First pass: Calculate individual totals per center
   const rawCosts = useMemo(() => {
@@ -157,14 +159,23 @@ const App: React.FC = () => {
                       {hpciOverTotalLimit ? <AlertTriangle size={18} /> : <CheckCircle2 size={18} className="text-emerald-500" />}
                   </div>
 
-                  {/* Settings Button */}
-                  <button 
-                    onClick={() => setIsSettingsOpen(true)}
-                    className="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
-                    title="Configure Limits"
-                  >
-                    <Settings size={20} />
-                  </button>
+                  {/* Action Buttons */}
+                  <div className="flex items-center gap-2">
+                    <button 
+                      onClick={() => setIsInfoOpen(true)}
+                      className="p-2 text-slate-500 hover:text-indigo-600 hover:bg-slate-100 rounded-lg transition-colors"
+                      title="Infrastructure Info"
+                    >
+                      <CircleHelp size={20} />
+                    </button>
+                    <button 
+                      onClick={() => setIsSettingsOpen(true)}
+                      className="p-2 text-slate-500 hover:text-indigo-600 hover:bg-slate-100 rounded-lg transition-colors"
+                      title="Configure Limits"
+                    >
+                      <Settings size={20} />
+                    </button>
+                  </div>
                 </div>
             </div>
         </div>
@@ -242,12 +253,20 @@ const App: React.FC = () => {
             <div className="flex items-center gap-3 mb-6">
                  <h2 className="text-xl font-bold text-slate-900">Resource Allocation</h2>
                  <div className="h-px flex-1 bg-slate-200"></div>
-                 <button 
-                    onClick={() => setIsSettingsOpen(true)}
-                    className="text-xs font-medium text-indigo-600 hover:text-indigo-800 flex items-center gap-1"
-                 >
-                   <Settings size={14} /> Configure Limits
-                 </button>
+                 <div className="flex items-center gap-2">
+                   <button 
+                      onClick={() => setIsInfoOpen(true)}
+                      className="text-xs font-medium text-slate-500 hover:text-indigo-600 flex items-center gap-1"
+                   >
+                     <CircleHelp size={14} /> Help
+                   </button>
+                   <button 
+                      onClick={() => setIsSettingsOpen(true)}
+                      className="text-xs font-medium text-slate-500 hover:text-indigo-600 flex items-center gap-1"
+                   >
+                     <Settings size={14} /> Configure Limits
+                   </button>
+                 </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -278,6 +297,12 @@ const App: React.FC = () => {
         onClose={() => setIsSettingsOpen(false)}
         centers={centers}
         onUpdateCenter={handleCenterUpdate}
+      />
+      
+      {/* Info Modal */}
+      <InfoModal 
+        isOpen={isInfoOpen}
+        onClose={() => setIsInfoOpen(false)}
       />
     </div>
   );
