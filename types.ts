@@ -30,6 +30,7 @@ export interface CenterSpec {
   name: string;
   type: InfrastructureType;
   description: string;
+  url?: string; // URL to official documentation
   mdxSpecs?: MdxSystemSpec;
   
   // Arrays of available resources

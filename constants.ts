@@ -10,6 +10,7 @@ export const CENTERS: CenterSpec[] = [
     name: 'Hokkaido University',
     type: 'HPCI',
     description: 'Grand Chariot',
+    url: 'https://www.iic.hokudai.ac.jp/',
     cpuOptions: [
         { id: 'hok-cpu-1', name: 'General', limit: 42000, price: 18 }
     ],
@@ -25,6 +26,7 @@ export const CENTERS: CenterSpec[] = [
     name: 'Tohoku University',
     type: 'HPCI',
     description: 'AOBA',
+    url: 'https://www.cyberscience.tohoku.ac.jp/',
     cpuOptions: [
         { id: 'toh-cpu-1', name: 'Type A', limit: 40000, price: 75 },
         { id: 'toh-cpu-2', name: 'Type B', limit: 136000, price: 22 },
@@ -41,6 +43,7 @@ export const CENTERS: CenterSpec[] = [
     name: 'University of Tokyo',
     type: 'HPCI',
     description: 'Wisteria/BDEC-01',
+    url: 'https://www.cc.u-tokyo.ac.jp/system/wisteria/',
     cpuOptions: [
         { id: 'tok-cpu-1', name: 'Odyssey', limit: 276480, price: 10 },
         { id: 'tok-cpu-2', name: 'Miyabi-C (Xeon Max 9480)', limit: 103680, price: 28 }
@@ -60,6 +63,7 @@ export const CENTERS: CenterSpec[] = [
     name: 'Science Tokyo (Tokyo Tech)',
     type: 'HPCI',
     description: 'TSUBAME4.0',
+    url: 'https://www.t3.gsic.titech.ac.jp/',
     cpuOptions: [],
     gpuOptions: [
         { id: 'st-gpu-1', name: 'GPU Node', limit: 34000, price: 275 }
@@ -73,6 +77,7 @@ export const CENTERS: CenterSpec[] = [
     name: 'Nagoya University',
     type: 'HPCI',
     description: 'Flow',
+    url: 'https://www.itc.nagoya-u.ac.jp/',
     cpuOptions: [
         { id: 'nag-cpu-1', name: 'Type I', limit: 24590, price: 122 }
     ],
@@ -88,6 +93,7 @@ export const CENTERS: CenterSpec[] = [
     name: 'Osaka University',
     type: 'HPCI',
     description: 'SQUID',
+    url: 'http://www.hpc.cmc.osaka-u.ac.jp/',
     // Prices not provided in update, retaining previous estimates for functionality
     cpuOptions: [
         { id: 'osa-cpu-1', name: 'SQUID General Purpose', limit: 114000, price: 70 },
@@ -108,6 +114,7 @@ export const CENTERS: CenterSpec[] = [
     name: 'Kyoto University',
     type: 'HPCI',
     description: 'Camphor 3',
+    url: 'http://www.iimc.kyoto-u.ac.jp/',
     cpuOptions: [
         { id: 'kyo-cpu-1', name: 'Type A', limit: 144230, price: 21 },
         { id: 'kyo-cpu-2', name: 'Type B', limit: 56074, price: 54 }
@@ -123,6 +130,7 @@ export const CENTERS: CenterSpec[] = [
     name: 'Kyushu University',
     type: 'HPCI',
     description: 'ITO',
+    url: 'https://www.riit.kyushu-u.ac.jp/',
     cpuOptions: [
         { id: 'kyu-cpu-1', name: 'Subsystem A', limit: 16000, price: 30 },
         { id: 'kyu-cpu-2', name: 'Subsystem B', limit: 4000, price: 120 }
@@ -141,6 +149,7 @@ export const CENTERS: CenterSpec[] = [
     name: 'mdx-I (Tokyo)',
     type: 'mdx',
     description: 'Kashiwa II',
+    url: 'https://mdx.jp/',
     mdxSpecs: {
       totalCpuNodes: 368,
       cpuNodeSpec: 'Xeon Platinum 8368 x2',
@@ -171,6 +180,7 @@ export const CENTERS: CenterSpec[] = [
     name: 'mdx-II (Osaka)',
     type: 'mdx',
     description: 'Grand Front Osaka',
+    url: 'https://mdx.jp/',
     mdxSpecs: {
       totalCpuNodes: 60, // 54 Standard + 6 Interoperable
       cpuNodeSpec: 'Xeon Platinum 8480+ x2',
