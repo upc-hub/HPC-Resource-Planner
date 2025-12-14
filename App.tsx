@@ -154,7 +154,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 text-slate-900 pb-20 font-sans">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 text-slate-900 pb-6 font-sans">
       
       {/* Navbar */}
       <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm">
@@ -339,7 +339,7 @@ const App: React.FC = () => {
 
       {/* Footer */}
       <footer className="max-w-7xl mx-auto px-4 py-6 text-center text-slate-400 text-xs border-t border-slate-200/50">
-        <p>&copy; {new Date().getFullYear()} HPC Resource Planner. Created by Hein Htet. All rights reserved.</p>
+        <p>&copy; {new Date().getFullYear()} HPC Resource Planner. Created by <span className="font-bold text-slate-600">Hein Htet</span>. All rights reserved.</p>
       </footer>
 
       {/* Settings Modal */}
