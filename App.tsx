@@ -6,7 +6,7 @@ import { CostChart } from './components/CostChart';
 import { ResourceComparison } from './components/ResourceComparison';
 import { SettingsModal } from './components/SettingsModal';
 import { InfoModal } from './components/InfoModal';
-import { LayoutDashboard, Wallet, Building2, AlertTriangle, CheckCircle2, Settings, CircleHelp, RotateCcw } from 'lucide-react';
+import { LayoutDashboard, Wallet, Building2, AlertTriangle, CheckCircle2, Settings, CircleHelp, RotateCcw, Search, Cpu, Server } from 'lucide-react';
 
 const App: React.FC = () => {
   // State for Center Definitions (Allows editing limits via Settings)
@@ -29,6 +29,43 @@ const App: React.FC = () => {
   // Modal States
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isInfoOpen, setIsInfoOpen] = useState(false);
+
+  // Search Capability State
+  const [searchReq, setSearchReq] = useState({ cpu: '', gpu: '' });
+
+  // Capability Search Logic
+  const highlightedCenterIds = useMemo(() => {
+    const cpuVal = parseFloat(searchReq.cpu);
+    const gpuVal = parseFloat(searchReq.gpu);
+    
+    // If input is invalid or empty, highlight nothing (empty set)
+    if ((!searchReq.cpu && !searchReq.gpu) || (isNaN(cpuVal) && isNaN(gpuVal))) {
+        return new Set<string>();
+    }
+
+    // Determine matching centers
+    const matches = centers.filter(c => {
+        let matchesCpu = true;
+        if (cpuVal > 0) {
+             // Check if ANY cpu option has a limit >= required
+             matchesCpu = c.cpuOptions.some(opt => opt.limit >= cpuVal);
+        }
+
+        let matchesGpu = true;
+        if (gpuVal > 0) {
+            // Check if ANY gpu option has a limit >= required
+            matchesGpu = c.gpuOptions.some(opt => opt.limit >= gpuVal);
+        } else if (searchReq.gpu && gpuVal === 0) {
+           // User explicitly typed 0, basically ignored but logic holds
+        }
+
+        // Must satisfy BOTH if both entered
+        return matchesCpu && matchesGpu;
+    }).map(c => c.id);
+
+    return new Set(matches);
+  }, [searchReq, centers]);
+
 
   // First pass: Calculate individual totals per center
   const rawCosts = useMemo(() => {
@@ -283,10 +320,55 @@ const App: React.FC = () => {
 
         {/* Main Grid: Centers */}
         <section className="animate-in slide-in-from-bottom-4 duration-500 delay-200">
-            <div className="flex items-center gap-3 mb-6">
-                 <h2 className="text-xl font-bold text-slate-900">Resource Allocation</h2>
-                 <div className="h-px flex-1 bg-gradient-to-r from-slate-200 to-transparent"></div>
-                 <div className="flex items-center gap-2">
+            {/* Header with Search Capability */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+               <div className="flex items-center gap-3">
+                    <h2 className="text-xl font-bold text-slate-900">Resource Allocation</h2>
+                    <div className="h-px w-8 bg-slate-300"></div>
+                </div>
+                
+                {/* Search Bar */}
+                <div className="flex flex-1 max-w-2xl bg-white p-2 rounded-xl border border-slate-200 shadow-sm items-center gap-2">
+                    <div className="bg-indigo-50 p-2 rounded-lg text-indigo-600 shrink-0">
+                        <Search size={18} />
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-2 flex-1">
+                        <div className="relative flex-1 group">
+                             <div className="absolute inset-y-0 left-2 flex items-center pointer-events-none text-slate-400 group-focus-within:text-indigo-500">
+                                <Cpu size={14} />
+                             </div>
+                             <input 
+                                type="number" 
+                                min="0" 
+                                placeholder="Req. CPU Node-Hours" 
+                                className="w-full pl-8 pr-2 py-1.5 text-sm bg-slate-50 border-0 rounded-md focus:ring-2 focus:ring-indigo-500 transition-all placeholder-slate-400"
+                                value={searchReq.cpu}
+                                onChange={(e) => setSearchReq(prev => ({ ...prev, cpu: e.target.value }))}
+                             />
+                        </div>
+                        <div className="relative flex-1 group">
+                             <div className="absolute inset-y-0 left-2 flex items-center pointer-events-none text-slate-400 group-focus-within:text-purple-500">
+                                <Server size={14} />
+                             </div>
+                             <input 
+                                type="number" 
+                                min="0" 
+                                placeholder="Req. GPU Hours" 
+                                className="w-full pl-8 pr-2 py-1.5 text-sm bg-slate-50 border-0 rounded-md focus:ring-2 focus:ring-purple-500 transition-all placeholder-slate-400"
+                                value={searchReq.gpu}
+                                onChange={(e) => setSearchReq(prev => ({ ...prev, gpu: e.target.value }))}
+                             />
+                        </div>
+                    </div>
+                    {highlightedCenterIds.size > 0 && (
+                        <div className="bg-emerald-100 text-emerald-700 text-xs font-bold px-2 py-1 rounded-md shrink-0 animate-in fade-in">
+                            {highlightedCenterIds.size} Found
+                        </div>
+                    )}
+                </div>
+
+                {/* Helper Buttons */}
+                <div className="flex items-center gap-2 shrink-0">
                    <button 
                       onClick={() => setIsInfoOpen(true)}
                       className="text-xs font-medium text-slate-500 hover:text-indigo-600 flex items-center gap-1 transition-colors"
@@ -297,7 +379,7 @@ const App: React.FC = () => {
                       onClick={() => setIsSettingsOpen(true)}
                       className="text-xs font-medium text-slate-500 hover:text-indigo-600 flex items-center gap-1 transition-colors"
                    >
-                     <Settings size={14} /> Configure Limits
+                     <Settings size={14} /> Limits
                    </button>
                  </div>
             </div>
@@ -329,6 +411,7 @@ const App: React.FC = () => {
                             // Pass down check for mdx overall limit or HPCI single limit
                             onUpdate={(type, optId, val) => handleRequestUpdate(center.id, type, optId, val)}
                             onToggleSelection={center.type === 'mdx' ? handleToggleSelection : undefined}
+                            isHighlighted={highlightedCenterIds.has(center.id)}
                         />
                     );
                 })}

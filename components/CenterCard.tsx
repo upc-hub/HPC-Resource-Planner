@@ -9,6 +9,7 @@ interface CenterCardProps {
   cost: number;
   onUpdate: (type: 'cpu' | 'gpu' | 'storage', optionId: string, value: number) => void;
   onToggleSelection?: (centerId: string) => void;
+  isHighlighted?: boolean;
 }
 
 // Stats calculation for mdx packs
@@ -369,7 +370,7 @@ const ResourceInputGroup: React.FC<{
   );
 };
 
-export const CenterCard: React.FC<CenterCardProps> = ({ center, request, cost, onUpdate, onToggleSelection }) => {
+export const CenterCard: React.FC<CenterCardProps> = ({ center, request, cost, onUpdate, onToggleSelection, isHighlighted }) => {
   const isCostOverLimit = center.type === 'HPCI' && cost > HPCI_SINGLE_CENTER_LIMIT;
   const isMdx = center.type === 'mdx';
 
@@ -381,7 +382,9 @@ export const CenterCard: React.FC<CenterCardProps> = ({ center, request, cost, o
 
   return (
     <div className={`bg-white rounded-2xl shadow-sm border transition-all duration-300 h-full flex flex-col hover:shadow-md 
-        ${isCostOverLimit || hasLimitError ? 'border-red-300 shadow-red-100' : 'border-slate-200 hover:border-indigo-300'}
+        ${isHighlighted ? 'ring-4 ring-emerald-500/30 border-emerald-500 shadow-emerald-100 scale-[1.02] z-10' : ''}
+        ${!isHighlighted && (isCostOverLimit || hasLimitError) ? 'border-red-300 shadow-red-100' : ''}
+        ${!isHighlighted && !isCostOverLimit && !hasLimitError ? 'border-slate-200 hover:border-indigo-300' : ''}
         ${request.isSelected ? 'ring-2 ring-purple-500 border-purple-500' : ''}
     `}>
       <div className="p-5 flex-1 flex flex-col">
