@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { CenterSpec, ResourceRequest, ResourceOption, MdxSystemSpec } from '../types';
-import { Cpu, Database, Server, TriangleAlert, Calculator, X, Info, Box, Check, Power, ExternalLink } from 'lucide-react';
+import { Cpu, Database, Server, TriangleAlert, Calculator, X, Info, Box, Check, Power, ExternalLink, Layers, Calendar, Clock, ArrowDownToLine } from 'lucide-react';
 import { HPCI_SINGLE_CENTER_LIMIT } from '../constants';
 
 interface CenterCardProps {
@@ -88,24 +88,42 @@ const ResourceRow: React.FC<{
 }> = ({ option, value, onUpdate, unit, isCalcEnabled, isMdx, mdxSpecs, resourceType }) => {
   const isOverLimit = !isMdx && value > option.limit; 
   const [showCalc, setShowCalc] = useState(false);
-  const [parallelNodes, setParallelNodes] = useState(1);
-  const [hoursPerDay, setHoursPerDay] = useState(24);
+  const [calcMode, setCalcMode] = useState<'batch' | 'daily' | 'runtime'>('batch');
+  
+  // Batch Mode Inputs
+  const [batchTime, setBatchTime] = useState('');
+  const [batchCount, setBatchCount] = useState('');
+  
+  // Daily Mode Inputs
+  const [dailyTime, setDailyTime] = useState('');
+  const [dailyCount, setDailyCount] = useState('');
+  const [dailyDays, setDailyDays] = useState('');
 
-  // Auto-reset calculator if value becomes 0 (e.g. via global reset)
+  // Runtime Mode Inputs
+  const [rtNodes, setRtNodes] = useState('1');
+  const [rtHours, setRtHours] = useState('24');
+
+  // Auto-reset
   useEffect(() => {
     if (value === 0) {
-      setParallelNodes(1);
-      setHoursPerDay(24);
-      setShowCalc(false);
+      setRtNodes('1');
+      setRtHours('24');
     }
   }, [value]);
 
-  // Calculate usage percentage for visual bar
+  // Derived Values
   const percentUsed = !isMdx && option.limit > 0 ? Math.min((value / option.limit) * 100, 100) : 0;
 
-  const durationDays = (value > 0 && parallelNodes > 0 && hoursPerDay > 0) 
-    ? (value / (parallelNodes * hoursPerDay)) 
+  const batchTotal = (parseFloat(batchTime) || 0) * (parseFloat(batchCount) || 0);
+  const dailyTotal = (parseFloat(dailyTime) || 0) * (parseFloat(dailyCount) || 0) * (parseFloat(dailyDays) || 0);
+  
+  const durationDays = (value > 0 && (parseFloat(rtNodes) || 0) > 0 && (parseFloat(rtHours) || 0) > 0) 
+    ? (value / ((parseFloat(rtNodes) || 1) * (parseFloat(rtHours) || 24))) 
     : 0;
+
+  const handleApply = (newVal: number) => {
+    onUpdate(newVal);
+  };
 
   return (
     <div className="relative mb-5 last:mb-0 group">
@@ -148,8 +166,8 @@ const ResourceRow: React.FC<{
         {isCalcEnabled && (
            <button 
              onClick={() => setShowCalc(!showCalc)}
-             className={`p-2 rounded-lg border transition-colors ${showCalc ? 'bg-indigo-50 border-indigo-200 text-indigo-600' : 'bg-white border-slate-200 text-slate-400 hover:text-indigo-600 hover:border-indigo-200 hover:bg-slate-50'}`}
-             title="Calculate Run Duration"
+             className={`p-2 rounded-lg border transition-colors ${showCalc ? 'bg-indigo-600 border-indigo-600 text-white shadow-md' : 'bg-white border-slate-200 text-slate-400 hover:text-indigo-600 hover:border-indigo-200 hover:bg-slate-50'}`}
+             title="Calculator"
            >
              <Calculator size={16} />
            </button>
@@ -181,38 +199,123 @@ const ResourceRow: React.FC<{
 
       {/* Calculator Panel */}
       {showCalc && isCalcEnabled && (
-        <div className="mt-2 p-3 bg-slate-50 rounded-lg border border-slate-200 text-xs animate-in slide-in-from-top-2 duration-200 shadow-inner">
-           <div className="flex justify-between items-center mb-2 border-b border-slate-200 pb-2">
-             <span className="font-bold text-slate-700 flex items-center gap-1.5"><Calculator size={12} className="text-indigo-500"/> Duration Calc</span>
-             <button onClick={() => setShowCalc(false)} className="text-slate-400 hover:text-slate-600"><X size={12}/></button>
-           </div>
-           <div className="grid grid-cols-2 gap-3 mb-2">
-             <div>
-               <label className="block text-slate-500 mb-1 text-[10px] font-medium uppercase">Parallel Nodes</label>
-               <input 
-                 type="number" 
-                 min="1"
-                 value={parallelNodes}
-                 onChange={(e) => setParallelNodes(Math.max(1, parseFloat(e.target.value) || 0))}
-                 className="w-full px-2 py-1.5 bg-white border border-slate-300 rounded focus:ring-1 focus:ring-indigo-500"
-               />
+        <div className="mt-3 p-3 bg-white rounded-xl border border-indigo-100 shadow-lg text-xs animate-in slide-in-from-top-2 duration-200 relative z-10">
+           
+           {/* Calc Header */}
+           <div className="flex justify-between items-center mb-3">
+             <div className="flex items-center gap-1.5 text-indigo-900 font-bold">
+               <Calculator size={14} className="text-indigo-500"/>
+               <span>Calculator</span>
              </div>
-             <div>
-               <label className="block text-slate-500 mb-1 text-[10px] font-medium uppercase">Hours/Day</label>
-               <input 
-                 type="number" 
-                 min="1" 
-                 max="24"
-                 value={hoursPerDay}
-                 onChange={(e) => setHoursPerDay(Math.min(24, Math.max(1, parseFloat(e.target.value) || 0)))}
-                 className="w-full px-2 py-1.5 bg-white border border-slate-300 rounded focus:ring-1 focus:ring-indigo-500"
-               />
+             <button onClick={() => setShowCalc(false)} className="text-slate-400 hover:text-slate-600"><X size={14}/></button>
+           </div>
+
+           {/* Tabs */}
+           <div className="flex bg-slate-100 p-1 rounded-lg mb-4">
+             <button 
+               onClick={() => setCalcMode('batch')} 
+               className={`flex-1 flex items-center justify-center gap-1 py-1.5 rounded-md text-[10px] font-bold transition-all ${calcMode === 'batch' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+             >
+               <Layers size={12}/> Batch
+             </button>
+             <button 
+               onClick={() => setCalcMode('daily')} 
+               className={`flex-1 flex items-center justify-center gap-1 py-1.5 rounded-md text-[10px] font-bold transition-all ${calcMode === 'daily' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+             >
+               <Calendar size={12}/> Daily
+             </button>
+             <button 
+               onClick={() => setCalcMode('runtime')} 
+               className={`flex-1 flex items-center justify-center gap-1 py-1.5 rounded-md text-[10px] font-bold transition-all ${calcMode === 'runtime' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+             >
+               <Clock size={12}/> Runtime
+             </button>
+           </div>
+
+           {/* Batch Mode Content */}
+           {calcMode === 'batch' && (
+             <div className="space-y-3">
+               <div className="grid grid-cols-2 gap-3">
+                 <div>
+                   <label className="block text-slate-500 mb-1 text-[9px] font-bold uppercase tracking-wider">Time / Job (hr)</label>
+                   <input type="number" min="0" value={batchTime} onChange={(e) => setBatchTime(e.target.value)} placeholder="e.g. 2.5" className="w-full px-2 py-1.5 bg-slate-50 border border-slate-200 rounded focus:ring-1 focus:ring-indigo-500"/>
+                 </div>
+                 <div>
+                   <label className="block text-slate-500 mb-1 text-[9px] font-bold uppercase tracking-wider">Total Jobs</label>
+                   <input type="number" min="0" value={batchCount} onChange={(e) => setBatchCount(e.target.value)} placeholder="e.g. 100" className="w-full px-2 py-1.5 bg-slate-50 border border-slate-200 rounded focus:ring-1 focus:ring-indigo-500"/>
+                 </div>
+               </div>
+               <div className="flex items-center justify-between bg-indigo-50 p-2 rounded-lg border border-indigo-100">
+                  <span className="text-indigo-700 font-bold ml-1">{batchTotal.toLocaleString()} {unit}</span>
+                  <button 
+                    onClick={() => handleApply(batchTotal)}
+                    disabled={batchTotal <= 0}
+                    className="flex items-center gap-1.5 bg-indigo-600 text-white px-3 py-1.5 rounded text-[10px] font-bold hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    Apply <ArrowDownToLine size={12} />
+                  </button>
+               </div>
              </div>
-           </div>
-           <div className="bg-white p-2.5 rounded border border-slate-200 flex justify-between items-center shadow-sm mt-1">
-              <span className="text-slate-500 font-medium">Est. Runtime:</span>
-              <span className="font-bold text-indigo-600 text-sm">{durationDays.toLocaleString(undefined, {maximumFractionDigits: 1})} Days</span>
-           </div>
+           )}
+
+           {/* Daily Mode Content */}
+           {calcMode === 'daily' && (
+             <div className="space-y-3">
+               <div className="grid grid-cols-3 gap-2">
+                 <div>
+                   <label className="block text-slate-500 mb-1 text-[9px] font-bold uppercase tracking-wider">Time/Job</label>
+                   <input type="number" min="0" value={dailyTime} onChange={(e) => setDailyTime(e.target.value)} placeholder="Hr" className="w-full px-2 py-1.5 bg-slate-50 border border-slate-200 rounded focus:ring-1 focus:ring-indigo-500 text-xs"/>
+                 </div>
+                 <div>
+                   <label className="block text-slate-500 mb-1 text-[9px] font-bold uppercase tracking-wider">Jobs/Day</label>
+                   <input type="number" min="0" value={dailyCount} onChange={(e) => setDailyCount(e.target.value)} placeholder="Cnt" className="w-full px-2 py-1.5 bg-slate-50 border border-slate-200 rounded focus:ring-1 focus:ring-indigo-500 text-xs"/>
+                 </div>
+                 <div>
+                   <label className="block text-slate-500 mb-1 text-[9px] font-bold uppercase tracking-wider">Days</label>
+                   <input type="number" min="0" value={dailyDays} onChange={(e) => setDailyDays(e.target.value)} placeholder="Day" className="w-full px-2 py-1.5 bg-slate-50 border border-slate-200 rounded focus:ring-1 focus:ring-indigo-500 text-xs"/>
+                 </div>
+               </div>
+               <div className="flex items-center justify-between bg-indigo-50 p-2 rounded-lg border border-indigo-100">
+                  <span className="text-indigo-700 font-bold ml-1">{dailyTotal.toLocaleString()} {unit}</span>
+                  <button 
+                    onClick={() => handleApply(dailyTotal)}
+                    disabled={dailyTotal <= 0}
+                    className="flex items-center gap-1.5 bg-indigo-600 text-white px-3 py-1.5 rounded text-[10px] font-bold hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    Apply <ArrowDownToLine size={12} />
+                  </button>
+               </div>
+             </div>
+           )}
+
+           {/* Runtime Mode Content */}
+           {calcMode === 'runtime' && (
+             <div className="space-y-2">
+               <div className="grid grid-cols-2 gap-3 mb-2">
+                 <div>
+                   <label className="block text-slate-500 mb-1 text-[9px] font-bold uppercase tracking-wider">Parallel Nodes</label>
+                   <input 
+                     type="number" min="1" value={rtNodes} 
+                     onChange={(e) => setRtNodes(e.target.value)} 
+                     className="w-full px-2 py-1.5 bg-slate-50 border border-slate-200 rounded focus:ring-1 focus:ring-indigo-500"
+                   />
+                 </div>
+                 <div>
+                   <label className="block text-slate-500 mb-1 text-[9px] font-bold uppercase tracking-wider">Hours/Day</label>
+                   <input 
+                     type="number" min="1" max="24" value={rtHours} 
+                     onChange={(e) => setRtHours(e.target.value)} 
+                     className="w-full px-2 py-1.5 bg-slate-50 border border-slate-200 rounded focus:ring-1 focus:ring-indigo-500"
+                   />
+                 </div>
+               </div>
+               <div className="bg-slate-50 p-2.5 rounded border border-slate-200 flex justify-between items-center shadow-inner">
+                  <span className="text-slate-500 font-medium">Est. Wall-time:</span>
+                  <span className="font-bold text-indigo-600">{durationDays.toLocaleString(undefined, {maximumFractionDigits: 1})} Days</span>
+               </div>
+             </div>
+           )}
+
         </div>
       )}
     </div>
@@ -302,18 +405,20 @@ export const CenterCard: React.FC<CenterCardProps> = ({ center, request, cost, o
           {/* Action Buttons (External Link / Price / Mdx Toggle) */}
           <div className="shrink-0 ml-4 flex flex-col items-end gap-2">
             
-            {/* External URL Button */}
-            {center.url && (
-                <a 
-                  href={center.url} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
-                  title="Open Official Specs"
-                >
-                   <ExternalLink size={16} />
-                </a>
-            )}
+            <div className="flex gap-1">
+              {/* External URL Button */}
+              {center.url && (
+                  <a 
+                    href={center.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                    title="Open Official Specs"
+                  >
+                    <ExternalLink size={16} />
+                  </a>
+              )}
+            </div>
 
             {!isMdx ? (
                 <div className="text-right">
