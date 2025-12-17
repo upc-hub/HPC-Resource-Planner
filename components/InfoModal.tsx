@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Server, Cloud, Info, Cpu, Zap, BarChart3, ArrowRight } from 'lucide-react';
+import { X, Server, Cloud, Info, Cpu, Zap, BarChart3, ArrowRight, Brain, Network, Play, FileBarChart, Atom, Layers } from 'lucide-react';
 
 interface InfoModalProps {
   isOpen: boolean;
@@ -49,9 +49,34 @@ export const InfoModal: React.FC<InfoModalProps> = ({ isOpen, onClose }) => {
     }
   ];
 
+  // Data derived from NVIDIA Data Center Portfolio Image
+  // 2 = Best (Dark Green), 1 = Good (Light Green)
+  const portfolioData = [
+    { name: 'GB200 NVL72',  pre: 2, post: 2, inf: 2, data: 2, hpc: 2, vid: 2 },
+    { name: 'GB200 NVL4',   pre: 1, post: 2, inf: 2, data: 2, hpc: 2, vid: 2 },
+    { name: 'GH200 NVL2',   pre: 1, post: 2, inf: 2, data: 2, hpc: 2, vid: 2 },
+    { name: 'HGX B200',     pre: 2, post: 2, inf: 2, data: 2, hpc: 2, vid: 2 },
+    { name: 'HGX H200',     pre: 2, post: 2, inf: 2, data: 2, hpc: 2, vid: 1 },
+    { name: 'H200 NVL',     pre: 1, post: 2, inf: 2, data: 2, hpc: 2, vid: 1 },
+  ];
+
+  const RatingCell = ({ level }: { level: number }) => {
+    if (level === 2) return (
+        <div className="flex justify-center">
+            <div className="w-5 h-5 bg-emerald-700 rounded-sm shadow-sm" title="Best"></div>
+        </div>
+    );
+    if (level === 1) return (
+        <div className="flex justify-center">
+            <div className="w-5 h-5 bg-emerald-300 rounded-sm shadow-sm" title="Good"></div>
+        </div>
+    );
+    return <div className="w-5 h-5 mx-auto"></div>;
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col animate-in fade-in zoom-in-95 duration-200 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-5xl max-h-[90vh] flex flex-col animate-in fade-in zoom-in-95 duration-200 overflow-hidden">
         
         {/* Header */}
         <div className="bg-slate-900 p-6 flex justify-between items-center text-white shrink-0">
@@ -167,7 +192,9 @@ export const InfoModal: React.FC<InfoModalProps> = ({ isOpen, onClose }) => {
 
           {/* GPU Comparison Content */}
           {activeTab === 'gpus' && (
-             <div className="animate-in fade-in slide-in-from-right-4 duration-300">
+             <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
+                
+                {/* 1. Basic Comparison Table */}
                 <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                     <div className="p-4 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
                          <h3 className="font-bold text-slate-800 flex items-center gap-2"><BarChart3 size={18} className="text-indigo-600"/> Accelerator Comparison</h3>
@@ -217,10 +244,72 @@ export const InfoModal: React.FC<InfoModalProps> = ({ isOpen, onClose }) => {
                             </tbody>
                         </table>
                     </div>
-                    <div className="p-4 bg-slate-50 border-t border-slate-100 text-xs text-slate-500 italic text-center">
-                        * Performance ranking is approximate based on theoretical FP64/AI compute throughput.
+                </div>
+
+                {/* 2. Portfolio Matrix (Visual reproduction of image) */}
+                <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div className="p-4 border-b border-slate-100 bg-slate-50 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                         <div>
+                            <h3 className="font-bold text-slate-800">NVIDIA Workload Portfolio</h3>
+                            <p className="text-xs text-slate-500 mt-1">Suitability map based on NVIDIA Data Center Compute Portfolio</p>
+                         </div>
+                         <div className="flex items-center gap-4 text-xs">
+                             <div className="flex items-center gap-1.5">
+                                 <div className="w-3 h-3 bg-emerald-700 rounded-sm"></div>
+                                 <span className="font-bold text-slate-600">Best</span>
+                             </div>
+                             <div className="flex items-center gap-1.5">
+                                 <div className="w-3 h-3 bg-emerald-300 rounded-sm"></div>
+                                 <span className="font-medium text-slate-500">Good</span>
+                             </div>
+                         </div>
+                    </div>
+                    
+                    {/* Optional Image Holder - User can place file here */}
+                    <div className="border-b border-slate-100 bg-slate-50/50 flex justify-center">
+                         <img 
+                           src="/nvidia-portfolio.png" 
+                           alt="NVIDIA Portfolio Chart" 
+                           className="max-h-[300px] w-auto object-contain mix-blend-multiply"
+                           onError={(e) => {
+                             e.currentTarget.style.display = 'none';
+                           }}
+                         />
+                    </div>
+
+                    <div className="overflow-x-auto">
+                         <table className="w-full text-sm">
+                             <thead className="bg-white text-slate-500 font-bold uppercase text-[10px] tracking-wider border-b border-slate-100">
+                                 <tr>
+                                     <th className="px-4 py-3 text-left w-32">Solution</th>
+                                     <th className="px-2 py-3 text-center"><div className="flex flex-col items-center gap-1"><Brain size={14}/> Pretraining</div></th>
+                                     <th className="px-2 py-3 text-center"><div className="flex flex-col items-center gap-1"><Layers size={14}/> Post-Train</div></th>
+                                     <th className="px-2 py-3 text-center"><div className="flex flex-col items-center gap-1"><Zap size={14}/> Inference</div></th>
+                                     <th className="px-2 py-3 text-center"><div className="flex flex-col items-center gap-1"><FileBarChart size={14}/> Analytics</div></th>
+                                     <th className="px-2 py-3 text-center"><div className="flex flex-col items-center gap-1"><Atom size={14}/> HPC</div></th>
+                                     <th className="px-2 py-3 text-center"><div className="flex flex-col items-center gap-1"><Play size={14}/> Video Gen</div></th>
+                                 </tr>
+                             </thead>
+                             <tbody className="divide-y divide-slate-100">
+                                 {portfolioData.map((row) => (
+                                     <tr key={row.name} className="hover:bg-slate-50 transition-colors">
+                                         <td className="px-4 py-3 font-bold text-slate-800 text-xs">{row.name}</td>
+                                         <td className="px-2 py-3"><RatingCell level={row.pre} /></td>
+                                         <td className="px-2 py-3"><RatingCell level={row.post} /></td>
+                                         <td className="px-2 py-3"><RatingCell level={row.inf} /></td>
+                                         <td className="px-2 py-3"><RatingCell level={row.data} /></td>
+                                         <td className="px-2 py-3"><RatingCell level={row.hpc} /></td>
+                                         <td className="px-2 py-3"><RatingCell level={row.vid} /></td>
+                                     </tr>
+                                 ))}
+                             </tbody>
+                         </table>
+                    </div>
+                    <div className="p-3 bg-slate-50 border-t border-slate-100 text-[10px] text-slate-400 text-center">
+                        Green indicators represent recommended workload suitability. "Best" indicates optimal performance for the specific task.
                     </div>
                 </div>
+
              </div>
           )}
 
