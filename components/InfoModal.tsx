@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Server, Cloud, Info, Cpu, Zap, BarChart3, ArrowRight, Brain, Network, Play, FileBarChart, Atom, Layers } from 'lucide-react';
+import { X, Server, Cloud, Info, Cpu, Zap, BarChart3, ArrowRight, Brain, Network, Play, FileBarChart, Atom, Layers, ShieldAlert } from 'lucide-react';
 
 interface InfoModalProps {
   isOpen: boolean;
@@ -106,7 +106,7 @@ export const InfoModal: React.FC<InfoModalProps> = ({ isOpen, onClose }) => {
             </button>
         </div>
         
-        <div className="flex-1 overflow-y-auto p-6 md:p-8 bg-slate-50">
+        <div className="flex-1 overflow-y-auto p-6 md:p-8 bg-slate-50 space-y-8">
           
           {/* Guide Content */}
           {activeTab === 'guide' && (
@@ -265,8 +265,8 @@ export const InfoModal: React.FC<InfoModalProps> = ({ isOpen, onClose }) => {
                          </div>
                     </div>
                     
-                    {/* Optional Image Holder - User can place file here */}
-                    <div className="border-b border-slate-100 bg-slate-50/50 flex justify-center">
+                    {/* Image Holder */}
+                    <div className="border-b border-slate-100 bg-slate-50/50 flex justify-center p-2">
                          <img 
                            src="/nvidia-portfolio.png" 
                            alt="NVIDIA Portfolio Chart" 
@@ -309,13 +309,27 @@ export const InfoModal: React.FC<InfoModalProps> = ({ isOpen, onClose }) => {
                         Green indicators represent recommended workload suitability. "Best" indicates optimal performance for the specific task.
                     </div>
                 </div>
-
              </div>
           )}
 
+          {/* Global Disclaimer in Modal */}
+          <div className="mt-8 pt-6 border-t border-slate-200">
+             <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex gap-4 items-start">
+                <div className="shrink-0 text-slate-400 mt-1"><ShieldAlert size={20} /></div>
+                <div className="space-y-2">
+                   <h4 className="text-xs font-bold text-slate-900 uppercase tracking-widest">Disclaimer</h4>
+                   <div className="text-xs text-slate-600 leading-relaxed space-y-1">
+                      <p className="font-semibold text-slate-700">This site is an independent resource planning tool.</p>
+                      <p>CPU/GPU costs are approximate values estimated from publicly available HPCI/JHPCN FY2026 call documents and user reports.</p>
+                      <p>This site is not an official HPCI/JHPCN service.</p>
+                   </div>
+                </div>
+             </div>
+          </div>
+
         </div>
         
-        <div className="p-4 border-t border-slate-200 bg-white flex justify-end">
+        <div className="p-4 border-t border-slate-200 bg-white flex justify-end shrink-0">
           <button onClick={onClose} className="px-6 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 font-medium transition-colors">
             Close
           </button>

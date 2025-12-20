@@ -6,7 +6,7 @@ import { CostChart } from './components/CostChart';
 import { ResourceComparison } from './components/ResourceComparison';
 import { SettingsModal } from './components/SettingsModal';
 import { InfoModal } from './components/InfoModal';
-import { LayoutDashboard, Wallet, Building2, AlertTriangle, CheckCircle2, Settings, CircleHelp, RotateCcw, Search, Cpu, Server } from 'lucide-react';
+import { LayoutDashboard, Wallet, Building2, AlertTriangle, CheckCircle2, Settings, CircleHelp, RotateCcw, Search, Cpu, Server, ShieldAlert } from 'lucide-react';
 
 const App: React.FC = () => {
   // State for Center Definitions (Allows editing limits via Settings)
@@ -421,8 +421,23 @@ const App: React.FC = () => {
       </main>
 
       {/* Footer */}
-      <footer className="max-w-7xl mx-auto px-4 py-6 text-center text-purple-600 text-xs border-t border-slate-200/50">
-        <p>&copy; {new Date().getFullYear()} HPC Resource Planner. Created by <span className="font-bold">Hein Htet</span>. All rights reserved.</p>
+      <footer className="max-w-7xl mx-auto px-4 py-8 border-t border-slate-200/50">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+          <div className="md:col-span-2 text-slate-500">
+            <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">
+              <ShieldAlert size={14} /> Disclaimer
+            </h4>
+            <div className="space-y-2 text-[11px] leading-relaxed">
+              <p className="font-semibold text-slate-600 italic">This site is an independent resource planning tool.</p>
+              <p>CPU/GPU costs are approximate values estimated from publicly available HPCI/JHPCN FY2026 call documents and user reports.</p>
+              <p>This site is not an official HPCI/JHPCN service.</p>
+            </div>
+          </div>
+          <div className="text-right flex flex-col justify-end h-full">
+            <p className="text-xs text-slate-400">&copy; {new Date().getFullYear()} HPC Resource Planner.</p>
+            <p className="text-xs text-slate-400 mt-1">Created by <span className="font-bold text-slate-600">Hein Htet</span>. All rights reserved.</p>
+          </div>
+        </div>
       </footer>
 
       {/* Settings Modal */}
