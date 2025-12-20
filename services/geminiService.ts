@@ -1,3 +1,4 @@
+
 import { GoogleGenAI, Type } from "@google/genai";
 import { AiEstimateResponse, CenterSpec } from '../types';
 
@@ -43,8 +44,9 @@ export const estimateResources = async (
   `;
 
   try {
+    // Using gemini-3-flash-preview for basic text estimation task
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3-flash-preview',
       contents: prompt,
       config: {
         responseMimeType: 'application/json',

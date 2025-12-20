@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from 'react';
 import { CenterSpec, ResourceRequest, ResourceOption, MdxSystemSpec } from '../types';
-import { Cpu, Database, Server, TriangleAlert, Calculator, X, Info, Box, Check, Power, ExternalLink, Layers, Calendar, Clock, ArrowDownToLine } from 'lucide-react';
+import { Cpu, Database, Server, TriangleAlert, Calculator, X, Info, Box, Check, Power, ExternalLink, Layers, Calendar, Clock, ArrowDownToLine, Sparkles } from 'lucide-react';
 import { HPCI_SINGLE_CENTER_LIMIT } from '../constants';
 
 interface CenterCardProps {
@@ -10,6 +11,7 @@ interface CenterCardProps {
   onUpdate: (type: 'cpu' | 'gpu' | 'storage', optionId: string, value: number) => void;
   onToggleSelection?: (centerId: string) => void;
   isHighlighted?: boolean;
+  onOpenConsultant?: () => void;
 }
 
 // Stats calculation for mdx packs
@@ -370,7 +372,7 @@ const ResourceInputGroup: React.FC<{
   );
 };
 
-export const CenterCard: React.FC<CenterCardProps> = ({ center, request, cost, onUpdate, onToggleSelection, isHighlighted }) => {
+export const CenterCard: React.FC<CenterCardProps> = ({ center, request, cost, onUpdate, onToggleSelection, isHighlighted, onOpenConsultant }) => {
   const isCostOverLimit = center.type === 'HPCI' && cost > HPCI_SINGLE_CENTER_LIMIT;
   const isMdx = center.type === 'mdx';
 
@@ -409,6 +411,16 @@ export const CenterCard: React.FC<CenterCardProps> = ({ center, request, cost, o
           <div className="shrink-0 ml-4 flex flex-col items-end gap-2">
             
             <div className="flex gap-1">
+              {/* AI Consultant Button */}
+              {onOpenConsultant && (
+                <button 
+                  onClick={onOpenConsultant}
+                  className="p-1.5 text-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                  title="AI Resource Consultant"
+                >
+                  <Sparkles size={16} />
+                </button>
+              )}
               {/* External URL Button */}
               {center.url && (
                   <a 
