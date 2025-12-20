@@ -172,8 +172,7 @@ const App: React.FC = () => {
       }));
       setRequests(emptyRequests);
       
-      // 2. Increment Reset Key to force component unmount/remount
-      // This ensures any local state in sub-components (like inputs) is completely wiped
+      // 2. Increment Reset Key to force re-render of components on reset to ensure inputs clear thoroughly
       setResetKey(prev => prev + 1);
     }
   };
@@ -191,10 +190,10 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 text-slate-900 pb-6 font-sans">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 to-slate-100 text-slate-900 font-sans">
       
       {/* Navbar */}
-      <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm">
+      <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm shrink-0">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
                 <div className="flex items-center gap-3">
@@ -251,7 +250,8 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      {/* Main Content Area */}
+      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         
         {/* Top Section: Visualization */}
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-in slide-in-from-bottom-4 duration-500">
@@ -386,7 +386,6 @@ const App: React.FC = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {centers.map(center => {
-                    // Safe access with fallback in case of state timing issues
                     const req = requests.find(r => r.centerId === center.id) || {
                         centerId: center.id,
                         cpuSelections: {},
@@ -404,11 +403,10 @@ const App: React.FC = () => {
                     
                     return (
                         <CenterCard
-                            key={`${center.id}-${resetKey}`} // FORCE REMOUNT ON RESET
+                            key={`${center.id}-${resetKey}`} 
                             center={center}
                             request={req}
                             cost={costData.total}
-                            // Pass down check for mdx overall limit or HPCI single limit
                             onUpdate={(type, optId, val) => handleRequestUpdate(center.id, type, optId, val)}
                             onToggleSelection={center.type === 'mdx' ? handleToggleSelection : undefined}
                             isHighlighted={highlightedCenterIds.has(center.id)}
@@ -420,22 +418,42 @@ const App: React.FC = () => {
 
       </main>
 
-      {/* Footer */}
-      <footer className="max-w-7xl mx-auto px-4 py-8 border-t border-slate-200/50">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
-          <div className="md:col-span-2 text-slate-500">
-            <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">
-              <ShieldAlert size={14} /> Disclaimer
-            </h4>
-            <div className="space-y-2 text-[11px] leading-relaxed">
-              <p className="font-semibold text-slate-600 italic">This site is an independent resource planning tool.</p>
-              <p>CPU/GPU costs are approximate values estimated from publicly available HPCI/JHPCN FY2026 call documents and user reports.</p>
-              <p>This site is not an official HPCI/JHPCN service.</p>
+      {/* Footer - Pushed to bottom by flex-1 on main */}
+      <footer className="w-full bg-white border-t border-slate-200 mt-12 shrink-0">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 items-start">
+            
+            {/* Disclaimer Column */}
+            <div className="md:col-span-2 space-y-4">
+              <div className="flex items-center gap-2 text-slate-400">
+                <ShieldAlert size={18} />
+                <h4 className="text-xs font-bold uppercase tracking-widest">Legal Disclaimer</h4>
+              </div>
+              <div className="space-y-3 text-[12px] leading-relaxed text-slate-500 max-w-2xl">
+                <p className="font-semibold text-slate-700 italic border-l-2 border-slate-200 pl-3">
+                  This site is an independent resource planning tool.
+                </p>
+                <p>
+                  CPU/GPU costs are approximate values estimated from publicly available HPCI/JHPCN FY2026 call documents and user reports. Actual costs may vary based on specific institutional policies or mid-year updates.
+                </p>
+                <p>
+                  This site is not an official HPCI/JHPCN service and should be used for preliminary estimation purposes only. Always refer to official documentation for final budget applications.
+                </p>
+              </div>
             </div>
-          </div>
-          <div className="text-right flex flex-col justify-end h-full">
-            <p className="text-xs text-slate-400">&copy; {new Date().getFullYear()} HPC Resource Planner.</p>
-            <p className="text-xs text-slate-400 mt-1">Created by <span className="font-bold text-slate-600">Hein Htet</span>. All rights reserved.</p>
+
+            {/* Copyright Column */}
+            <div className="flex flex-col md:items-end justify-between h-full space-y-4 md:space-y-0">
+              <div className="text-left md:text-right">
+                <p className="text-xs font-bold text-slate-700 tracking-tight">&copy; {new Date().getFullYear()} HPC Resource Planner</p>
+                <p className="text-[11px] text-slate-400 mt-1">All rights reserved.</p>
+              </div>
+              <div className="text-left md:text-right pt-4 border-t border-slate-50 md:border-0">
+                <p className="text-[11px] text-slate-400">Created by</p>
+                <p className="text-sm font-bold bg-gradient-to-r from-slate-700 to-slate-900 bg-clip-text text-transparent">Hein Htet</p>
+              </div>
+            </div>
+
           </div>
         </div>
       </footer>
