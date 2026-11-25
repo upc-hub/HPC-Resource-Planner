@@ -18,7 +18,7 @@ export const CostChart: React.FC<CostChartProps> = ({ costs }) => {
       const center = CENTERS.find(c => c.id === cost.centerId);
       // Abbreviate names for better fit
       const name = center?.name
-        .replace("University", "Univ.")
+        .replace("University", "Uni.")
         .replace("Institute", "Inst.")
         .replace("Science Tokyo (Tokyo Tech)", "Science Tokyo") || cost.centerId;
         

@@ -7,8 +7,12 @@ import { CostChart } from './components/CostChart';
 import { ResourceComparison } from './components/ResourceComparison';
 import { SettingsModal } from './components/SettingsModal';
 import { InfoModal } from './components/InfoModal';
+<<<<<<< HEAD:App.tsx
 import { AiConsultantModal } from './components/AiConsultantModal';
 import { LayoutDashboard, Wallet, Building2, AlertTriangle, CheckCircle2, Settings, CircleHelp, RotateCcw, Search, ShieldAlert, Heart, Sparkles } from 'lucide-react';
+=======
+import { LayoutDashboard, Wallet, Building2, AlertTriangle, CheckCircle2, Settings, CircleHelp, RotateCcw, Search, Cpu, Server } from 'lucide-react';
+>>>>>>> Move app source into src:src/App.tsx
 
 const App: React.FC = () => {
   // State for Center Definitions (Allows editing limits via Settings)
@@ -48,11 +52,44 @@ const App: React.FC = () => {
              matchesCpu = c.cpuOptions.some(opt => opt.limit >= cpuVal);
         }
 
+<<<<<<< HEAD:App.tsx
         let matchesGpu = true;
         if (gpuVal > 0) {
             matchesGpu = c.gpuOptions.some(opt => opt.limit >= gpuVal);
         }
 
+=======
+  // Search Capability State
+  const [searchReq, setSearchReq] = useState({ cpu: '', gpu: '' });
+
+  // Capability Search Logic
+  const highlightedCenterIds = useMemo(() => {
+    const cpuVal = parseFloat(searchReq.cpu);
+    const gpuVal = parseFloat(searchReq.gpu);
+    
+    // If input is invalid or empty, highlight nothing (empty set)
+    if ((!searchReq.cpu && !searchReq.gpu) || (isNaN(cpuVal) && isNaN(gpuVal))) {
+        return new Set<string>();
+    }
+
+    // Determine matching centers
+    const matches = centers.filter(c => {
+        let matchesCpu = true;
+        if (cpuVal > 0) {
+             // Check if ANY cpu option has a limit >= required
+             matchesCpu = c.cpuOptions.some(opt => opt.limit >= cpuVal);
+        }
+
+        let matchesGpu = true;
+        if (gpuVal > 0) {
+            // Check if ANY gpu option has a limit >= required
+            matchesGpu = c.gpuOptions.some(opt => opt.limit >= gpuVal);
+        } else if (searchReq.gpu && gpuVal === 0) {
+           // User explicitly typed 0, basically ignored but logic holds
+        }
+
+        // Must satisfy BOTH if both entered
+>>>>>>> Move app source into src:src/App.tsx
         return matchesCpu && matchesGpu;
     }).map(c => c.id);
 
@@ -60,7 +97,11 @@ const App: React.FC = () => {
   }, [searchReq, centers]);
 
 
+<<<<<<< HEAD:App.tsx
   // Calculate individual totals per center
+=======
+  // First pass: Calculate individual totals per center
+>>>>>>> Move app source into src:src/App.tsx
   const rawCosts = useMemo(() => {
     return requests.map(req => {
       const center = centers.find(c => c.id === req.centerId);
@@ -183,7 +224,11 @@ const App: React.FC = () => {
   };
 
   return (
+<<<<<<< HEAD:App.tsx
     <div className="flex flex-col min-h-screen bg-slate-50 text-slate-900 font-sans">
+=======
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 text-slate-900 pb-6 font-sans">
+>>>>>>> Move app source into src:src/App.tsx
       
       {/* Navbar */}
       <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm shrink-0">
@@ -273,14 +318,124 @@ const App: React.FC = () => {
                   </div>
                </div>
             </div>
+<<<<<<< HEAD:App.tsx
             
             <div className="lg:col-span-2">
                <CostChart costs={costs} />
+=======
+        </section>
+
+        {/* Comparison Section */}
+        <section className="animate-in slide-in-from-bottom-4 duration-500 delay-100">
+          <ResourceComparison centers={centers} />
+        </section>
+
+        {/* Main Grid: Centers */}
+        <section className="animate-in slide-in-from-bottom-4 duration-500 delay-200">
+            {/* Header with Search Capability */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+               <div className="flex items-center gap-3">
+                    <h2 className="text-xl font-bold text-slate-900">Resource Allocation</h2>
+                    <div className="h-px w-8 bg-slate-300"></div>
+                </div>
+                
+                {/* Search Bar */}
+                <div className="flex flex-1 max-w-2xl bg-white p-2 rounded-xl border border-slate-200 shadow-sm items-center gap-2">
+                    <div className="bg-indigo-50 p-2 rounded-lg text-indigo-600 shrink-0">
+                        <Search size={18} />
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-2 flex-1">
+                        <div className="relative flex-1 group">
+                             <div className="absolute inset-y-0 left-2 flex items-center pointer-events-none text-slate-400 group-focus-within:text-indigo-500">
+                                <Cpu size={14} />
+                             </div>
+                             <input 
+                                type="number" 
+                                min="0" 
+                                placeholder="Req. CPU Node-Hours" 
+                                className="w-full pl-8 pr-2 py-1.5 text-sm bg-slate-50 border-0 rounded-md focus:ring-2 focus:ring-indigo-500 transition-all placeholder-slate-400"
+                                value={searchReq.cpu}
+                                onChange={(e) => setSearchReq(prev => ({ ...prev, cpu: e.target.value }))}
+                             />
+                        </div>
+                        <div className="relative flex-1 group">
+                             <div className="absolute inset-y-0 left-2 flex items-center pointer-events-none text-slate-400 group-focus-within:text-purple-500">
+                                <Server size={14} />
+                             </div>
+                             <input 
+                                type="number" 
+                                min="0" 
+                                placeholder="Req. GPU Hours" 
+                                className="w-full pl-8 pr-2 py-1.5 text-sm bg-slate-50 border-0 rounded-md focus:ring-2 focus:ring-purple-500 transition-all placeholder-slate-400"
+                                value={searchReq.gpu}
+                                onChange={(e) => setSearchReq(prev => ({ ...prev, gpu: e.target.value }))}
+                             />
+                        </div>
+                    </div>
+                    {highlightedCenterIds.size > 0 && (
+                        <div className="bg-emerald-100 text-emerald-700 text-xs font-bold px-2 py-1 rounded-md shrink-0 animate-in fade-in">
+                            {highlightedCenterIds.size} Found
+                        </div>
+                    )}
+                </div>
+
+                {/* Helper Buttons */}
+                <div className="flex items-center gap-2 shrink-0">
+                   <button 
+                      onClick={() => setIsInfoOpen(true)}
+                      className="text-xs font-medium text-slate-500 hover:text-indigo-600 flex items-center gap-1 transition-colors"
+                   >
+                     <CircleHelp size={14} /> Help
+                   </button>
+                   <button 
+                      onClick={() => setIsSettingsOpen(true)}
+                      className="text-xs font-medium text-slate-500 hover:text-indigo-600 flex items-center gap-1 transition-colors"
+                   >
+                     <Settings size={14} /> Limits
+                   </button>
+                 </div>
+>>>>>>> Move app source into src:src/App.tsx
             </div>
           </div>
 
+<<<<<<< HEAD:App.tsx
           {/* Institutional Comparison Component */}
           <ResourceComparison centers={centers} />
+=======
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {centers.map(center => {
+                    // Safe access with fallback in case of state timing issues
+                    const req = requests.find(r => r.centerId === center.id) || {
+                        centerId: center.id,
+                        cpuSelections: {},
+                        gpuSelections: {},
+                        storageSelections: {}
+                    };
+                    const costData = costs.find(c => c.centerId === center.id) || {
+                        centerId: center.id,
+                        cpuCost: 0,
+                        gpuCost: 0,
+                        storageCost: 0,
+                        total: 0,
+                        isOverLimit: false
+                    };
+                    
+                    return (
+                        <CenterCard
+                            key={`${center.id}-${resetKey}`} // FORCE REMOUNT ON RESET
+                            center={center}
+                            request={req}
+                            cost={costData.total}
+                            // Pass down check for mdx overall limit or HPCI single limit
+                            onUpdate={(type, optId, val) => handleRequestUpdate(center.id, type, optId, val)}
+                            onToggleSelection={center.type === 'mdx' ? handleToggleSelection : undefined}
+                            isHighlighted={highlightedCenterIds.has(center.id)}
+                        />
+                    );
+                })}
+            </div>
+        </section>
+>>>>>>> Move app source into src:src/App.tsx
 
           {/* Center Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -300,6 +455,7 @@ const App: React.FC = () => {
         </div>
       </main>
 
+<<<<<<< HEAD:App.tsx
       <footer className="bg-white border-t border-slate-200 p-8 shrink-0">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-2 text-slate-400">
@@ -313,6 +469,28 @@ const App: React.FC = () => {
       </footer>
 
       {/* Modals */}
+=======
+      {/* Footer */}
+<footer className="max-w-7xl mx-auto px-4 py-6 text-center text-xs text-white
+                   bg-gradient-to-br from-purple-600 to-indigo-700
+                   rounded-t-2xl border-t border-purple-500/30 shadow-sm">
+  <p className="opacity-95">
+    This site is an independent resource planning tool.
+  </p>
+  <p className="opacity-90">
+    CPU/GPU costs are approximate values estimated from publicly available HPCI/JHPCN FY2026 call documents and user reports.
+  </p>
+  <p className="opacity-90">
+    This site is not an official HPCI/JHPCN service.
+  </p>
+  <p className="mt-2 opacity-80">
+    &copy; {new Date().getFullYear()} HPC Resource Planner. Created by{" "}
+    <span className="font-semibold">Hein Htet</span>.
+  </p>
+</footer>
+
+      {/* Settings Modal */}
+>>>>>>> Move app source into src:src/App.tsx
       <SettingsModal 
         isOpen={isSettingsOpen} 
         onClose={() => setIsSettingsOpen(false)} 

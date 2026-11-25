@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Server, Cloud, Info, Cpu, Zap, BarChart3, ArrowRight, Brain, Network, Play, FileBarChart, Atom, Layers, ShieldAlert } from 'lucide-react';
+import { X, Server, Cloud, Info, Cpu, Zap, BarChart3, ArrowRight, Brain, Network, Play, FileBarChart, Atom, Layers } from 'lucide-react';
 
 interface InfoModalProps {
   isOpen: boolean;
@@ -13,38 +13,45 @@ export const InfoModal: React.FC<InfoModalProps> = ({ isOpen, onClose }) => {
 
   const gpuData = [
     {
+      model: "NVIDIA V100",
+      memory: "32GB HBM2",
+      desc: "1st Gen Tensor Cores, NVLink 300 GB/s, PCIe Gen3",
+      centers: "Nagoya Uni.",
+      tier: "1"
+    },
+    {
       model: "NVIDIA A100",
       memory: "40GB / 80GB HBM2e",
-      desc: "Standard for AI/HPC. Good baseline performance.",
-      centers: "Osaka (SQUID), Tokyo (Wisteria), mdx-I",
+      desc: "3rd Gen Tensor Cores, MIG, PCIe Gen4",
+      centers: "Osaka Uni.(SQUID), Uni. of Tokyo (Wisteria and mdx-I)",
       tier: "1"
     },
     {
       model: "NVIDIA H100",
       memory: "80GB HBM3",
-      desc: "~3x-6x faster than A100 for AI workloads.",
-      centers: "Science Tokyo, Kyushu, Hokkaido",
+      desc: "4th Gen Tensor Cores, Transformer Engine (FP8), PCIe Gen5, NVLink 900 GB/s",
+      centers: "Science Tokyo, Kyushu Uni., Hokkaido Uni.",
       tier: "2"
     },
     {
       model: "NVIDIA H200",
       memory: "141GB HBM3e",
-      desc: "Higher memory bandwidth & capacity than H100.",
-      centers: "mdx-II (Osaka)",
+      desc: "HBM3e memory upgrade, higher memory bandwidth",
+      centers: "Osaka Uni. (mdx-II)",
       tier: "3"
     },
     {
       model: "NVIDIA GH200",
-      memory: "96GB HBM3 + Unified",
-      desc: "Grace CPU + Hopper GPU. Huge unified memory space.",
-      centers: "Tokyo (Miyabi-G)",
+      memory: "141GB HBM3e (GPU) + 96GB LPDDR5X (CPU)",
+      desc: "Integrated Grace CPU, ultra-fast chip-to-chip interconnect",
+      centers: "Uni. of Tokyo (Miyabi-G)",
       tier: "4"
     },
     {
       model: "NVIDIA GB200",
-      memory: "384GB+ HBM3e",
-      desc: "Blackwell Architecture. Next-gen extreme performance.",
-      centers: "Nagoya",
+      memory: "192GB HBM3e (per GPU, 2 GPUs) + Grace CPU",
+      desc: "5th Gen Tensor Cores, FP4/FP6 support, 20 PFLOPs (FP4 inference)",
+      centers: "Nagoya Uni. (on October 2026)",
       tier: "5"
     }
   ];
@@ -106,7 +113,7 @@ export const InfoModal: React.FC<InfoModalProps> = ({ isOpen, onClose }) => {
             </button>
         </div>
         
-        <div className="flex-1 overflow-y-auto p-6 md:p-8 bg-slate-50 space-y-8">
+        <div className="flex-1 overflow-y-auto p-6 md:p-8 bg-slate-50">
           
           {/* Guide Content */}
           {activeTab === 'guide' && (
@@ -208,7 +215,7 @@ export const InfoModal: React.FC<InfoModalProps> = ({ isOpen, onClose }) => {
                                 <tr>
                                     <th className="px-6 py-4">Model</th>
                                     <th className="px-6 py-4">Memory</th>
-                                    <th className="px-6 py-4">Performance Note</th>
+                                    <th className="px-6 py-4">Key Feature</th>
                                     <th className="px-6 py-4">Available At</th>
                                 </tr>
                             </thead>
@@ -265,12 +272,12 @@ export const InfoModal: React.FC<InfoModalProps> = ({ isOpen, onClose }) => {
                          </div>
                     </div>
                     
-                    {/* Image Holder */}
-                    <div className="border-b border-slate-100 bg-slate-50/50 flex justify-center p-2">
+                    {/* Optional Image Holder - User can place file here */}
+                    <div className="border-b border-slate-100 bg-slate-50/50 flex justify-center">
                          <img 
                            src="/nvidia-portfolio.png" 
                            alt="NVIDIA Portfolio Chart" 
-                           className="max-h-[300px] w-auto object-contain mix-blend-multiply"
+                           className="max-h-[700px] w-auto object-contain mix-blend-multiply"
                            onError={(e) => {
                              e.currentTarget.style.display = 'none';
                            }}
@@ -309,27 +316,13 @@ export const InfoModal: React.FC<InfoModalProps> = ({ isOpen, onClose }) => {
                         Green indicators represent recommended workload suitability. "Best" indicates optimal performance for the specific task.
                     </div>
                 </div>
+
              </div>
           )}
 
-          {/* Global Disclaimer in Modal */}
-          <div className="mt-8 pt-6 border-t border-slate-200">
-             <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex gap-4 items-start">
-                <div className="shrink-0 text-slate-400 mt-1"><ShieldAlert size={20} /></div>
-                <div className="space-y-2">
-                   <h4 className="text-xs font-bold text-slate-900 uppercase tracking-widest">Disclaimer</h4>
-                   <div className="text-xs text-slate-600 leading-relaxed space-y-1">
-                      <p className="font-semibold text-slate-700">This site is an independent resource planning tool.</p>
-                      <p>CPU/GPU costs are approximate values estimated from publicly available HPCI/JHPCN FY2026 call documents and user reports.</p>
-                      <p>This site is not an official HPCI/JHPCN service.</p>
-                   </div>
-                </div>
-             </div>
-          </div>
-
         </div>
         
-        <div className="p-4 border-t border-slate-200 bg-white flex justify-end shrink-0">
+        <div className="p-4 border-t border-slate-200 bg-white flex justify-end">
           <button onClick={onClose} className="px-6 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 font-medium transition-colors">
             Close
           </button>

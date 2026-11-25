@@ -1,7 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { CenterSpec, ResourceRequest, ResourceOption, MdxSystemSpec } from '../types';
+<<<<<<< HEAD:components/CenterCard.tsx
 import { Cpu, Database, Server, TriangleAlert, Calculator, X, Info, Box, Check, Power, ExternalLink, Layers, Calendar, Clock, ArrowDownToLine, Sparkles } from 'lucide-react';
+=======
+import { Cpu, Database, Server, TriangleAlert, Calculator, X, Info, Box, Check, Power, ExternalLink, Layers, Calendar, Clock, ArrowDownToLine } from 'lucide-react';
+>>>>>>> Move app source into src:src/components/CenterCard.tsx
 import { HPCI_SINGLE_CENTER_LIMIT } from '../constants';
 
 interface CenterCardProps {
@@ -11,7 +15,10 @@ interface CenterCardProps {
   onUpdate: (type: 'cpu' | 'gpu' | 'storage', optionId: string, value: number) => void;
   onToggleSelection?: (centerId: string) => void;
   isHighlighted?: boolean;
+<<<<<<< HEAD:components/CenterCard.tsx
   onOpenConsultant?: () => void;
+=======
+>>>>>>> Move app source into src:src/components/CenterCard.tsx
 }
 
 // Stats calculation for mdx packs
@@ -372,7 +379,11 @@ const ResourceInputGroup: React.FC<{
   );
 };
 
+<<<<<<< HEAD:components/CenterCard.tsx
 export const CenterCard: React.FC<CenterCardProps> = ({ center, request, cost, onUpdate, onToggleSelection, isHighlighted, onOpenConsultant }) => {
+=======
+export const CenterCard: React.FC<CenterCardProps> = ({ center, request, cost, onUpdate, onToggleSelection, isHighlighted }) => {
+>>>>>>> Move app source into src:src/components/CenterCard.tsx
   const isCostOverLimit = center.type === 'HPCI' && cost > HPCI_SINGLE_CENTER_LIMIT;
   const isMdx = center.type === 'mdx';
 
@@ -411,6 +422,7 @@ export const CenterCard: React.FC<CenterCardProps> = ({ center, request, cost, o
           <div className="shrink-0 ml-4 flex flex-col items-end gap-2">
             
             <div className="flex gap-1">
+<<<<<<< HEAD:components/CenterCard.tsx
               {/* AI Consultant Button */}
               {onOpenConsultant && (
                 <button 
@@ -421,6 +433,8 @@ export const CenterCard: React.FC<CenterCardProps> = ({ center, request, cost, o
                   <Sparkles size={16} />
                 </button>
               )}
+=======
+>>>>>>> Move app source into src:src/components/CenterCard.tsx
               {/* External URL Button */}
               {center.url && (
                   <a 
